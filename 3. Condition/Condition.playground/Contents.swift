@@ -45,6 +45,50 @@ import UIKit
  guardTest 함수는 옵셔널 형태의 정숫값을 매개변수로 받는다. guard 구문은 값을 언래핑하기 위해 옵셔널 바인딩을 사용하며, 그 값이 10보다 적은지를 판단한다. 값을 언래핑할 수 없거나 언래핑한 값이 9보다 큰 경우, else 절이 실행되어 에러 메시지를 출력하고 return문으로 함수를 빠져나간다.
  옵셔널이 10보다 작은 값을 가지고 있다면 guard구문 다음에 있는 코드가 실행되어 그 값에 10을 곱한 값이 출력된다. 여기서 중요한 점은 언래핑된 number 변수는 guard 구문 밖의 코드에서도 유효하다는 것이다. 반면 if 구문 내에서 언래핑된 변수는 if 구문에서만 유효하다.
  
+ 4.
+ switch - 스위프트는 다른 언어와 다르게 case 구문 끝에 break를 쓸 필요가 없다. case 조건에 일치하면 자동으로 구문 밖으로 빠져나가기 때문이다. 이때 fallthrough구문을 사용하면 다음 case로 이어갈 수 있다. where 구문은 case 구문에 부가적인 조건을 추가하기 위해서 사용된다.
+ 스위프트의 switch 구문은 default구문이 꼭 있어야 한다.
+ 
+ (where)
+ let temperature = 54
+
+ switch (temperature) {
+     case 0...49 where temperature % 2 == 0:
+     print("0...49")
+     
+     case 50...79 where temperature % 2 == 0:
+     print("50...79")
+     
+     case 80...110 where temperature % 2 == 0:
+     print("80...110")
+     
+     
+     default:
+     print("swift switch는 default구문이 꼭 필요하다.")
+ }
+ 
+ (fallthrough)
+  let temperature = 10
+ switch (temperature) {
+     case 0...49 where temperature % 2 == 0:
+     print("0...49")
+     fallthrough
+     
+     case 50...79 where temperature % 2 == 0:
+     print("50...79")
+     fallthrough
+     
+     case 80...110 where temperature % 2 == 0:
+     print("80...110")
+     fallthrough
+     
+     
+     default:
+     print("swift switch는 default구문이 꼭 필요하다.")
+ }
+ 
+
+ 
  */
 
 let x = 10
@@ -70,3 +114,37 @@ func guardTest(value: Int?) {
 
 guardTest(value: value1)
 
+let temperature = 10
+
+switch (temperature) {
+    case 0...49 where temperature % 2 == 0:
+    print("0...49")
+    
+    case 50...79 where temperature % 2 == 0:
+    print("50...79")
+    
+    case 80...110 where temperature % 2 == 0:
+    print("80...110")
+    
+    
+    default:
+    print("swift switch는 default구문이 꼭 필요하다.")
+}
+
+switch (temperature) {
+    case 0...49 where temperature % 2 == 0:
+    print("0...49")
+    fallthrough
+    
+    case 50...79 where temperature % 2 == 0:
+    print("50...79")
+    fallthrough
+    
+    case 80...110 where temperature % 2 == 0:
+    print("80...110")
+    fallthrough
+    
+    
+    default:
+    print("swift switch는 default구문이 꼭 필요하다.")
+}
