@@ -1,0 +1,41 @@
+1. 상태 프로퍼티(state property) - 상태에 대한 가장 기본적인 형태이며, 뷰 레이아웃의 현재 상태(텍스트 필드에 입력된 테스트등)를 저장하기 위해서만 사용된다. 상태 프로퍼티는 String이나 Int값처럼 간단한 데이터 타입을 저장하기 위해 사용되며, @State 프로퍼티 래퍼를 사용하여 선언된다.
+
+상태 프로퍼티 값이 변경되었다는 것은 그 프로퍼티가 선언된 뷰 계층구조를 다시 렌더링해야 한다는 SwiftUI 신호다. 즉, 그 계층구조 안에 있는 모든 뷰를 빠르게 재생성하고 표시해야 한다. 결국, 그 프로퍼티에 읜존하는 모든 뷰는 어떤 식으로든 최신 값이 반영되도록 업데이트 된다.
+상태 프로퍼티를 선언했다면 레이아웃에 있는 뷰와 바인딩을 할 수 있다. 바인딩이 되어 있는 뷰에서 어떤 변경이 일어나면 해당 상태 프로퍼티에 자동으로 반영된다.
+상태 프로퍼티와의 바인딩은 프로퍼티 이름 앞에 '$'를 붙이면 된다.
+
+
+struct ContentView: View {
+    
+    @State private var wifitEnabled = true
+    @State private var userName = ""
+    
+    var body: some View {
+        VStack {
+            TextField("Enter user Name", text: $userName) // 값이 입력되면 뷰는 다시 렌더링됨
+            Text(userName) // 새로운 값이 Text에 보여짐
+        }
+    }
+}
+
+사용자가 TextField에 입력하게 되면 바인딩은 현재의 텍스트를 userName 프로퍼티에 저장할 것이다. 이 상태 프로퍼티에 변화가 생길 때마다 뷰 계층구조는 SwiftUI에 의해 다시 렌더링 된다.
+물론, 상태 프로퍼티에 값을 저장하는 것은 단방향 프로세스다.
+
+사용자가 텍스트를 입력하면 Text 뷰는 사용자의 입력을 반영하기 위해 자동으로 업데이트될 것이다. 여기서는 '$'를 사용하지 않았다. 왜냐하면 이제는 상태 프로퍼티에 할당된 값(즉, 사용자에 의해 입력된 String 값)을 참조하여 사용하기 때문이다.
+
+
+
+2. 상태 바인딩 - 상태 프로퍼티는 선언된 뷰와 그 하위 뷰에 대한 현재 ㄱ밧이다. 하지만, 어떤 뷰가 하나 이상의 하위 뷰를 가지고 있으며 동일한 상태 프로퍼티에 대해 접근해야 하는 경우가 발생한다.
+
+VStack {
+    TextField("Enter user Name", $userName)
+    TextBinding(userName: $userName) // TextBinding()에 $userName값을 넘김
+}
+
+struct TextBidning: View {
+    @Binding userName: String // 넘어온 값을 받아 Text에 출력함
+    
+    var body: some View {
+        Text(userName)
+    }
+}
