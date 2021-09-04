@@ -14,6 +14,7 @@
 		8820002B26E25158001D1296 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8820002A26E25158001D1296 /* Preview Assets.xcassets */; };
 		8820002E26E25158001D1296 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8820002C26E25158001D1296 /* LaunchScreen.storyboard */; };
 		88CA62EE26E3665F0088A05D /* explain in Resources */ = {isa = PBXBuildFile; fileRef = 88CA62ED26E3665F0088A05D /* explain */; };
+		88CA62F026E369EF0088A05D /* Data.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88CA62EF26E369EF0088A05D /* Data.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +27,7 @@
 		8820002D26E25158001D1296 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		8820002F26E25158001D1296 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		88CA62ED26E3665F0088A05D /* explain */ = {isa = PBXFileReference; lastKnownFileType = text; path = explain; sourceTree = "<group>"; };
+		88CA62EF26E369EF0088A05D /* Data.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Data.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,6 +68,7 @@
 				8820002F26E25158001D1296 /* Info.plist */,
 				8820002926E25158001D1296 /* Preview Content */,
 				88CA62ED26E3665F0088A05D /* explain */,
+				88CA62EF26E369EF0088A05D /* Data.swift */,
 			);
 			path = "12. SwiftUI-Observable";
 			sourceTree = "<group>";
@@ -153,6 +156,7 @@
 				8820002226E25157001D1296 /* AppDelegate.swift in Sources */,
 				8820002426E25157001D1296 /* SceneDelegate.swift in Sources */,
 				8820002626E25157001D1296 /* ContentView.swift in Sources */,
+				88CA62F026E369EF0088A05D /* Data.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
