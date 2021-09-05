@@ -1,0 +1,41 @@
+Environment
+구독 객체는 특정 상태가 앱 내의 몇몇 SwiftUI 뷰에 의해 사용되어야 할 경우에 가장 적합하다.
+그런데 어떤 뷰에서 다른 뷰로 이동(navigation)하는데 이동될 뷰에서도 동일한 구독 객체에 접근해야 한다면, 이동할 때 대상 뷰로 구독 객체에 대한 참조체를 전달해야 할 것이다.
+이 방법은 여러 상황에 사용될 수 있지만, 앱 내의 여러 뷰가 동일한 구독 객체에 접근해야 하는 경우에는 복잡해질 수 있다.
+이런 상황에서는 Environment 객체를 사용하는 것이 더 합리적일 수 있다.
+
+Environment 객체는 Observable 객체와 같은 방식으로 선언된다. 즉, 반드시 ObservableObject 프로토콜을 따라야 하며, 적절한 프로퍼티가 개시되어야 한다.
+하지만, 중요한 차이점은 이 객체는 SwiftUI 환경에 저장되며, 뷰에서 뷰로 전달할 필요 없이 모든 뷰가 접근할 수 있다는 것이다.
+
+Environment 객체를 구독하는 객체는 @ObservedObject 래퍼 대신에 @EnvironmentObject 프로퍼티 래퍼를 시용하여 해당 객체를 참조한다.
+@EnvironmentObject var data: Data
+
+Environment 객체는 옵저버(observer) 내에서 초기화될 수 없으므로 접근하는 뷰가 화면을 설정하는 동안 구성해야 한다.
+
+SceneDelegate.swift
+
+func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
+    let contentView = ContentView()
+    
+    let data = Data()
+
+    // Use a UIHostingController as window root view controller.
+    if let windowScene = scene as? UIWindowScene {
+        let window = UIWindow(windowScene: windowScene)
+        window.rootViewController = UIHostingController(rootView: contentView.environment(data))
+        self.window = window
+        window.makeKeyAndVisible()
+    }
+}
+
+
+ContentView.swift
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView().environmentObject(Data())
+    }
+}
+
+
+이렇게 하면 이 객체는 구독 객체와 같은 동작을 할 것이며, 모든 레이아웃 뷰가 접근할 수 있다.
