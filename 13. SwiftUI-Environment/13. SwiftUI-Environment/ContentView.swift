@@ -32,7 +32,6 @@ struct ContentView: View {
         }
     }
     
-    
     func resetCount() {
         timerData.resetCount()
     }
