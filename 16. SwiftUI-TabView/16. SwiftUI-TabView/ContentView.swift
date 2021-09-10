@@ -21,7 +21,6 @@ struct ContentView: View {
                     Image(systemName: "1.circle")
                     Text("View1")
             }.tag(1)
-            
            
             Text("View2")
                 .tabItem {
@@ -35,6 +34,7 @@ struct ContentView: View {
                     Image(systemName: "3.circle")
                     Text("View3")
             }.tag(3)
+            
             
         }.font(.largeTitle)
         
