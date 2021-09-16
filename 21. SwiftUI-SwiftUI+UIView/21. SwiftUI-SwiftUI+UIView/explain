@@ -1,0 +1,163 @@
+SwiftUI가 나오기 전에 모든 IOS앱은 UIKit과 UIKit 기반을 지원하는 프레임워크를 사용하여 개발되었다.
+SwiftUI에는 앱을 만들기 위해 필요한 컴포넌트들이 많이 제공되지만, 프레임워크에서 제공되는 것과 동일한 것이 SwiftUI에는 없는 경우가 많다. ex) MapKit, WebView, UIKit - Dynamics(애니메이션)
+그래서 기본 방식에 SwiftUI를 추가하여 통합 작업을 해 더 많은 기능을 사용해야 한다.
+
+1. SwiftUI + UIKit 통합 방법
+
+UIKit 기반의 컴포넌트(UIView)를 SwiftUI View 선언부에 통합한다.
+UIKit 기반 애플리케이션의 사용자 인터페이스를 구성하는 각각의 컴포넌트는 UIView 클래스로부터 파생된다. -> 버튼, 레이블, 텍스트 관련 뷰, 지도, 슬라이더 등은 UIKit의 UIView 클래스의 하위 클래스이다.
+UIView 기반의 컴포넌트를 SwiftUI 뷰 선언부에 쉽게 통합하기 위해 SwiftUI는 UIViewRepresentable 프로토콜을 제공한다. UIView 컴포넌트를 SwiftUI에 통합하려면 해당 컴포넌트는 이 프로토콜을 구현하는 구조체로 래핑되어야 한다.
+
+UIViewRepresentable 프로토콜을 따르는 래퍼 구조체는 최소한 다음의 메서드들을 구현해야 한다.
+
+makeUIView() - 이 메서드는 UIView 기반 컴포넌트의 인스턴스를 생성하고 필요한 초기화 작업을 수행한 뒤 반환하는 역할을 한다.
+
+updateView() - UIView 자체를 업데이트해야 하는 변경이 SwiftUI 뷰에서 생길 때 마다 호출된다.
+
+선택 사항이지만, 다음 메서드도 구현할 수 있다.
+
+dismantleUIView() - 뷰를 제거하기 전에 정리 작업을 할 수 있는 기회를 제공한다.
+
+예를 들어, SwiftUI의 Text 뷰로는 할 수 없는 UILabel 클래스의 기능이 있다고 한다면 SwiftUI에서 UILabel 뷰를 사용할 수 있도록 UIViewRepresentable을 이용하면 래핑하면 다음과 같이 구조체가 구현될 수 있을 것이다.
+
+import SwiftUI
+
+struct MyUILabel: UIViewRepresentable {
+
+    var text: String
+    
+    func makeUIView(context: UIViewRepresentableContext<MyUILable>) -> UILabel {
+        let myLabel = UILabel()
+        myLabel.text = text
+        return myLabel
+    }
+    
+    func updateUIView(_ uiView: UILabel, context: UIViewRepresentableContext<MyUILabel>) {
+        // 필요한 업데이트 작업을 수행한다.
+    }
+}
+
+struct MyUILabel_Previews: PreviewProvider {
+    static var previews: some View {
+        MyUILabel(text: "Hello")
+    }
+}
+
+//ContentView
+
+struct ContentView: View {
+    var body: some View {
+        VStack {
+            MyUILabel(text: "Hello UIKit")
+        }
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+UILabel 뷰는 사용자 인터랙션의 결과에 따른 이벤트 처리가 필요가 없는 정적 컴포넌트다. 하지만 이벤트에 대해 반응해야 하는 뷰들은 코디네이터(coordinator)를 구현하기 위하여 UIViewRepresentable 래퍼를 확장해야 한다.
+
+
+---
+
+
+2. Coordinator 추가하기
+
+코디네이터는 이벤트를 처리하기 위하여 래핑된 UIView 컴포넌트에 필요한 프로토콜과핸들러 메서드를 구현하는 클래스의 형태를 취한다.
+이 클래스의 인스턴스는 UIViewRepresentable 프로토콜의 makeCoordinator() 메서드를 통해 래퍼에 적용된다.
+
+UIScrollView 클래스로 예를 들어보면, 이 클래스에는 사용자가 뷰의 맨 위를 넘어서 스크롤하려고 할 때 스피닝 프로그래스 인디케이터를 표시하며, 최신 콘텐트 뷰를 업데이트할 수 있는 메서드가 호출되는 리프레시 컨트롤(UIRefreshControl)을 추가할 수 있다.
+이것은 뉴스 앱에서 사용자가 최신 뉴스를 다운로드하려고 사용되는 일반적인 기능이다. 리프레시가 완료되면 UIRefreshControl 인스턴스의 endRefreshing() 메서드를 호출하여 프로그래스 스피너(progress spinner)를 제거하게 된다.
+
+UIScrollView를 SwiftUI와 함께 사용하려면 UIRefreshControl이 실행되었음을 알리고 필요한 작업을 수행하도록 하는 방법이 필요하다.
+
+ex)
+class Coordinator: NSObject {
+
+    // 코디네이터의 초기화 작업은 현재의 UIScrollView 인스턴스를 전달받아 로컬에 저장한다. 또한, 이 클래스는 handleRefresh()라는 이름의 함수를 구현하여 스크롤된 뷰 인스턴스에 대한 endRefreshing()메서드를 호출한다.
+
+    var control: MyScrollView
+    
+    init(_ control: MyScrollView) {
+        self.control = control
+    }
+
+    @objc func handleRefresh(sender: UIRefreshControl) {
+        sender.endRefreshing()
+    }
+
+    
+    // makeCoordinator() 메서드 호출을 통해 Coordinator 클래스의 인스턴스를 생성하고 뷰에 할당되도록 한다.
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+    
+    
+    // makeUIView() 메서드를 구현하여 UIScrollView 인스턴스를 생성하고 이것을 UIRefreshControl로 구성하고 UIRefreshControl 인스턴스에 값이 변경되는 이벤트가 발생할 때 handleRefresh() 메서드가 호출되도록 타깃을 추가한다.
+    
+    func makeUIView(context: Context) -> UIScrollView {
+        let scrollView = UIScrollView()
+        scrollView.refreshControl = UIRefreshControl()
+        
+        scrollView.refreshControl?.addTarget(context.coordinator, action: #selector(Coordinator.handleRefresh), for: .valueChanged)
+        return scrollView
+    }
+}
+
+
+---
+
+
+3. UIKit 델리에기션과 데이터 소스 처리하기
+
+델리게이션은 UIKit의 기능으로, 어떤 객체가 하나 이상의 작업을 수행하는 책임을 다른 객체로 넘길 수 있도록 해주며, 래핑된 UIView에 의해 처리되는 이벤트의 경우 추가적인 작업이 필요할 수도 있다.
+예를 들어, UIScrollView에는 사용자가 스크롤을 하고 있는지와 같은 특정 이벤트들이나 콘텐트를 맨 위로 스크롤했을 때에 대한 알림을 받는 델리게이트가 할당될 수 있다.
+이 델리게이트 객체는 UIScrollViewDelegate 프로토콜을 따라야 하며, 스크롤된 뷰에서 이벤트가 발생했을 때 자동으로 호출되는 특정 메서드를 구현해야 한다.
+
+마찬가지로, 데이터 소스는 화면에 표시될 데이터를 UIView 기반의 컴포넌트에 제공하는 객체다.
+예를 들어, UITableView 클래스에는 테이블 내에 표시될 셀들을 제공하기 위한 데이터 소스 객체를 할당할 수 있다.
+이 데이터 소스는 UITableViewDataSource 프로토콜을 따라야 한다.
+
+UIView를 SwiftUI에 통합할 때 델리게이트 이벤트를 처리하기 위해 코디네이터 클래스는 적절한 델리게이트 프로토콜을 구현하는 것으로 선언되어야 하며, 스크롤된 뷰 인스턴스의 이벤트에 대한 콜백 메서드가 포함되어야 한다.
+그런 다음, 코디네이터를 UIScrollView 인스턴스의 델리게이트로 할당되어야 한다.
+
+ex) 2. 코디네이터 구현체를 확장하여 사용자가 현재 스크롤하고 있다는 알림을 수신하는 예제
+
+class Coordinator: NSObject, UIScrollViewDelegate {
+    var control: MyScrollView
+    
+    init(_ control: MyScrollView) {
+        self.control = control
+    }
+    
+    // 추가
+    func scrollViewDidscroll(_ scrollView: UIScrollView) {
+        // 사용자 스크롤 중
+    }
+
+    @objc func handleRefresh(sender: UIRefreshControl) {
+        sender.endRefreshing()
+    }
+
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+
+    func makeUIView(context: Context) -> UIScrollView {
+        let scrollView = UIScrollView()
+        scrollView.delegate = context.coordinator
+        scrollView.refreshControl = UIRefreshControl()
+        
+        scrollView.refreshControl?.addTarget(context.coordinator, action: #selector(Coordinator.handleRefresh), for: .valueChanged)
+        return scrollView
+    }
+}
+
+코디네이터에 접근할 수 있게 하는 것뿐만 아니라, 콘텍스트에는 SwiftUI environment와 SwiftUI 뷰에 선언된 @EnvironmentObject 프로퍼티 모두를 접근하는 데 사용할 수 있는 environment 프로퍼티도 포함된다.
+
