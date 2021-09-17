@@ -6,6 +6,8 @@
 //  Copyright © 2021 Mirror. All rights reserved.
 //
 
+// git hub 이름 오류 commit
+
 import SwiftUI
 
 struct ContentView: View {
